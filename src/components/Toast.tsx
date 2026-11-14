@@ -1,32 +1,16 @@
 import './Toast.scss'
-import { useTaskContext } from '../hooks/useTaskContext'
 
-export default function Toast() {
-  const { pendingDelete, toast, undoDelete } = useTaskContext()
+interface ToastProps {
+  kind: 'success' | 'error'
+  text: string
+}
 
-  if (!pendingDelete && !toast) return null
-
+export default function Toast({ kind, text }: ToastProps) {
   return (
     <div className="toast-stack">
-      {toast && (
-        <div className={`toast toast--${toast.kind}`} role={toast.kind === 'error' ? 'alert' : 'status'}>
-          {toast.text}
-        </div>
-      )}
-
-      {pendingDelete && (
-        <div className="toast" key={pendingDelete.deadline}>
-          <div className="toast__row">
-            <span role="status">Завдання буде видалено.</span>
-            <button className="button button--secondary" type="button" onClick={undoDelete}>
-              Скасувати
-            </button>
-          </div>
-          <div className="toast__track" aria-hidden="true">
-            <div className="toast__progress" />
-          </div>
-        </div>
-      )}
+      <div className={`toast toast--${kind}`} role={kind === 'error' ? 'alert' : 'status'}>
+        {text}
+      </div>
     </div>
   )
 }

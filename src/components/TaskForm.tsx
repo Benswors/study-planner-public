@@ -2,11 +2,12 @@ import './TaskForm.scss'
 import { useId, useState } from 'react'
 import type { SubmitEvent } from 'react'
 import { DEFAULT_PRIORITY, PRIORITIES } from '../types/task'
-import { useTaskContext } from '../hooks/useTaskContext'
 import type { Task, TaskInput } from '../types/task'
 
 interface TaskFormProps {
   task?: Task
+  busy: boolean
+  onSave: (values: TaskInput) => Promise<boolean>
   onCancel?: () => void
 }
 const emptyValues: TaskInput = {
@@ -16,8 +17,7 @@ const emptyValues: TaskInput = {
   priority: DEFAULT_PRIORITY,
 }
 
-export default function TaskForm({ task, onCancel }: TaskFormProps) {
-  const { addTask, updateTask } = useTaskContext()
+export default function TaskForm({ task, busy, onSave, onCancel }: TaskFormProps) {
   const formId = useId()
   const [values, setValues] = useState<TaskInput>(() =>
     task
@@ -38,8 +38,9 @@ export default function TaskForm({ task, onCancel }: TaskFormProps) {
     setValues((previous) => ({ ...previous, priority: priority.value }))
   }
 
-  function submit(event: SubmitEvent<HTMLFormElement>) {
+  async function submit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (busy) return
     const title = values.title.trim()
     if (!title) {
       setError('Вкажіть назву завдання.')
@@ -52,12 +53,13 @@ export default function TaskForm({ task, onCancel }: TaskFormProps) {
       priority: values.priority,
     }
 
+    if (!(await onSave(input))) return
+
     if (task) {
-      if (updateTask(task.id, input)) onCancel?.()
+      onCancel?.()
       return
     }
 
-    addTask(input)
     setValues(emptyValues)
     setError('')
   }
@@ -73,6 +75,7 @@ export default function TaskForm({ task, onCancel }: TaskFormProps) {
             Назва <span aria-hidden="true">*</span>
           </label>
           <input
+            disabled={busy}
             id={`${formId}-task-title`}
             className="task-form__input"
             value={values.title}
@@ -97,6 +100,7 @@ export default function TaskForm({ task, onCancel }: TaskFormProps) {
             Опис
           </label>
           <textarea
+            disabled={busy}
             id={`${formId}-task-description`}
             className="task-form__input task-form__input--textarea"
             value={values.description}
@@ -113,6 +117,7 @@ export default function TaskForm({ task, onCancel }: TaskFormProps) {
             Категорія
           </label>
           <input
+            disabled={busy}
             id={`${formId}-task-category`}
             className="task-form__input"
             value={values.category}
@@ -128,6 +133,7 @@ export default function TaskForm({ task, onCancel }: TaskFormProps) {
             Пріоритет
           </label>
           <select
+            disabled={busy}
             id={`${formId}-task-priority`}
             className="task-form__input"
             value={values.priority}
@@ -141,11 +147,11 @@ export default function TaskForm({ task, onCancel }: TaskFormProps) {
           </select>
         </div>
         <div className="task-form__actions">
-          <button className="button button--primary" type="submit">
-            {task ? 'Зберегти' : 'Додати'}
+          <button className="button button--primary" type="submit" disabled={busy}>
+            {busy ? 'Зачекайте…' : task ? 'Зберегти' : 'Додати'}
           </button>
           {task && (
-            <button className="button button--secondary" type="button" onClick={onCancel}>
+            <button className="button button--secondary" type="button" disabled={busy} onClick={onCancel}>
               Скасувати редагування
             </button>
           )}

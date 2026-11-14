@@ -35,3 +35,29 @@
   padding: 12px;
   border-bottom: 1px solid #e9edf0;
 }
+
+.planner__summary > p,
+.planner__note {
+  margin: 0 0 8px;
+  color: #525f6d;
+}
+
+.planner__note {
+  margin-top: 8px;
+}
+
+.task-board__status {
+  padding: 16px;
+
+  p { margin-top: 0; }
+}
+
+.task-board__pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid #e9edf0;
+}

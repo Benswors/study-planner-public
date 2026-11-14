@@ -1,35 +1,39 @@
 import './TaskList.scss'
-import { useTaskContext } from '../hooks/useTaskContext'
-import { TASK_FILTERS } from '../types/task'
+import type { Task, TaskInput } from '../types/task'
 import TaskItem from './TaskItem'
 
-export default function TaskList() {
-  const { tasks, filter } = useTaskContext()
-  const selectedFilter =
-    TASK_FILTERS.find((option) => option.value === filter) ?? TASK_FILTERS[0]
-  const visibleTasks = tasks.filter(selectedFilter.matches)
+interface TaskListProps {
+  tasks: Task[]
+  totalCount: number
+  changes: Record<string, Task | null>
+  busy: boolean
+  onUpdate: (task: Task, changes: Partial<TaskInput> & { completed?: boolean }) => Promise<boolean>
+  onDelete: (task: Task) => Promise<boolean>
+}
 
+export default function TaskList({
+  tasks, totalCount, changes, busy, onUpdate, onDelete,
+}: TaskListProps) {
   if (tasks.length === 0) {
     return (
-      <div className="task-list__empty" role="status">
-        <p className="task-list__empty-title">Завдань поки немає.</p>
-        <p>Додайте перше навчальне завдання.</p>
-      </div>
-    )
-  }
-
-  if (visibleTasks.length === 0) {
-    return (
       <p className="task-list__empty" role="status">
-        За цим фільтром завдань немає.
+        {totalCount === 0 ? 'Завдань на цій сторінці немає.' : 'За цим фільтром завдань немає.'}
       </p>
     )
   }
 
   return (
     <ul className="task-list">
-      {visibleTasks.map((task) => (
-        <TaskItem key={task.id} task={task} />
+      {tasks.map((task) => (
+        <TaskItem
+          key={task.id}
+          task={task}
+          edited={Boolean(changes[task.id])}
+          busy={busy}
+          onSave={(values) => onUpdate(task, values)}
+          onToggle={() => onUpdate(task, { completed: !task.completed })}
+          onDelete={() => onDelete(task)}
+        />
       ))}
     </ul>
   )

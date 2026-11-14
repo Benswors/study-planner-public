@@ -3,5 +3,4 @@ dist
 .tools
 *.local
 .env
-.vscode/*
-!.vscode/settings.json
+.vscode/
