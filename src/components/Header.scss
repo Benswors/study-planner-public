@@ -1,0 +1,28 @@
+.header {
+  background: #fff;
+  border-bottom: 1px solid #e2e5e9;
+  &__content {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  &__title {
+    margin: 0;
+    color: #279bc8;
+    font-size: 21px;
+  }
+  &__subtitle {
+    margin: 0;
+    color: #7b8491;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 780px) {
+  .header__content { padding: 16px; }
+  .header__subtitle { display: none; }
+}

@@ -1,3 +1,4 @@
+import './TaskStats.scss'
 import { TASK_FILTERS } from '../types/task'
 import type { TaskCounts } from '../types/task'
 

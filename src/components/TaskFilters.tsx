@@ -1,16 +1,10 @@
+import './TaskFilters.scss'
 import { TASK_FILTERS } from '../types/task'
-import type { TaskCounts, TaskFilter } from '../types/task'
-interface TaskFiltersProps {
-  value: TaskFilter
-  counts: TaskCounts
-  onChange: (filter: TaskFilter) => void
-}
+import { useTaskContext } from '../hooks/useTaskContext'
+import type { TaskCounts } from '../types/task'
+export default function TaskFilters({ counts }: { counts: TaskCounts }) {
+  const { filter: selectedFilter, setFilter } = useTaskContext()
 
-export default function TaskFilters({
-  value,
-  counts,
-  onChange,
-}: TaskFiltersProps) {
   return (
     <div className="task-filters" role="group" aria-label="Фільтр завдань">
       {TASK_FILTERS.map((filter) => (
@@ -18,11 +12,11 @@ export default function TaskFilters({
           key={filter.value}
           className={[
             'task-filters__button',
-            value === filter.value ? 'task-filters__button--active' : '',
+            selectedFilter === filter.value ? 'task-filters__button--active' : '',
           ].join(' ')}
           type="button"
-          aria-pressed={value === filter.value}
-          onClick={() => onChange(filter.value)}
+          aria-pressed={selectedFilter === filter.value}
+          onClick={() => setFilter(filter.value)}
         >
           {filter.label}
           <span className="task-filters__count">{counts[filter.value]}</span>

@@ -1,12 +1,19 @@
+import './TaskItem.scss'
+import { useState } from 'react'
+import { useTaskContext } from '../hooks/useTaskContext'
+import TaskForm from './TaskForm'
 import { PRIORITIES } from '../types/task'
 import type { Task } from '../types/task'
-interface TaskItemProps {
-  task: Task
-  onToggle: (id: string) => void
-  onDelete: (id: string) => void
-}
+export default function TaskItem({ task }: { task: Task }) {
+  const { pendingDelete, toggleTask, requestDelete } = useTaskContext()
+  const [editing, setEditing] = useState(false)
+  const pending = pendingDelete?.id === task.id
+  const className = [
+    'task-item',
+    task.completed ? 'task-item--completed' : '',
+    pending ? 'task-item--pending' : '',
+  ].filter(Boolean).join(' ')
 
-export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
   const priority =
     PRIORITIES.find((option) => option.value === task.priority) ?? PRIORITIES[0]
   const toggleLabel = task.completed
@@ -14,12 +21,13 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
     : 'Позначити виконаним'
 
   return (
-    <li className={`task-item${task.completed ? ' task-item--completed' : ''}`}>
+    <li className={className}>
       <input
         className="task-item__checkbox"
         type="checkbox"
         checked={task.completed}
-        onChange={() => onToggle(task.id)}
+        onChange={() => toggleTask(task.id)}
+        disabled={pending}
         aria-label={`${toggleLabel}: ${task.title}`}
       />
       <div className="task-item__content">
@@ -33,18 +41,35 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
             {priority.label}
           </span>
           <span className="task-item__status">
-            {task.completed ? 'Виконано' : 'Не виконано'}
+            {pending ? 'Буде видалено' : task.completed ? 'Виконано' : 'Не виконано'}
           </span>
         </div>
+        {editing && !pending && (
+          <div className="task-item__edit">
+            <TaskForm task={task} onCancel={() => setEditing(false)} />
+          </div>
+        )}
       </div>
-      <button
-        className="button button--danger"
-        type="button"
-        onClick={() => onDelete(task.id)}
-        aria-label={`Видалити: ${task.title}`}
-      >
-        Видалити
-      </button>
+      <div className="task-item__actions">
+        <button
+          className="button button--secondary"
+          type="button"
+          disabled={pending || editing}
+          onClick={() => setEditing(true)}
+          aria-label={`Редагувати: ${task.title}`}
+        >
+          Редагувати
+        </button>
+        <button
+          className="button button--danger"
+          type="button"
+          disabled={pending || editing}
+          onClick={() => requestDelete(task.id)}
+          aria-label={`Видалити: ${task.title}`}
+        >
+          Видалити
+        </button>
+      </div>
     </li>
   )
 }

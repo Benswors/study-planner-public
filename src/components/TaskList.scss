@@ -1,0 +1,16 @@
+.task-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  &__empty {
+    padding: 45px 20px;
+    color: #84909c;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  &__empty-title {
+    color: #525f6d;
+    font-weight: 600;
+  }
+}

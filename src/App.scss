@@ -1,0 +1,37 @@
+.planner {
+  max-width: 1080px;
+  margin: 32px auto;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: 310px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  &__tasks {
+    min-width: 0;
+  }
+}
+
+.task-board {
+  border: 1px solid #e0e4e9;
+  background: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+}
+@media (max-width: 780px) {
+  .planner {
+    grid-template-columns: 1fr;
+    padding: 0 16px;
+    margin: 20px auto;
+    gap: 16px;
+  }
+}
+
+.task-board__toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 12px;
+  border-bottom: 1px solid #e9edf0;
+}

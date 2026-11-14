@@ -1,10 +1,13 @@
-import { useState } from 'react'
+import './TaskForm.scss'
+import { useId, useState } from 'react'
 import type { SubmitEvent } from 'react'
 import { DEFAULT_PRIORITY, PRIORITIES } from '../types/task'
-import type { TaskInput } from '../types/task'
+import { useTaskContext } from '../hooks/useTaskContext'
+import type { Task, TaskInput } from '../types/task'
 
 interface TaskFormProps {
-  onAdd: (task: TaskInput) => void
+  task?: Task
+  onCancel?: () => void
 }
 const emptyValues: TaskInput = {
   title: '',
@@ -13,8 +16,19 @@ const emptyValues: TaskInput = {
   priority: DEFAULT_PRIORITY,
 }
 
-export default function TaskForm({ onAdd }: TaskFormProps) {
-  const [values, setValues] = useState<TaskInput>(emptyValues)
+export default function TaskForm({ task, onCancel }: TaskFormProps) {
+  const { addTask, updateTask } = useTaskContext()
+  const formId = useId()
+  const [values, setValues] = useState<TaskInput>(() =>
+    task
+      ? {
+          title: task.title,
+          description: task.description,
+          category: task.category,
+          priority: task.priority,
+        }
+      : emptyValues,
+  )
   const [error, setError] = useState('')
 
   function changePriority(value: string) {
@@ -31,50 +45,59 @@ export default function TaskForm({ onAdd }: TaskFormProps) {
       setError('Вкажіть назву завдання.')
       return
     }
-    onAdd({
+    const input: TaskInput = {
       title,
       description: values.description.trim(),
       category: values.category.trim() || 'Загальне',
       priority: values.priority,
-    })
+    }
+
+    if (task) {
+      if (updateTask(task.id, input)) onCancel?.()
+      return
+    }
+
+    addTask(input)
     setValues(emptyValues)
     setError('')
   }
 
   return (
     <section className="task-form">
-      <h2 className="task-form__heading">Нове завдання</h2>
+      <h2 className="task-form__heading">
+        {task ? 'Редагування завдання' : 'Нове завдання'}
+      </h2>
       <form className="task-form__fields" noValidate onSubmit={submit}>
         <div className="task-form__field">
-          <label className="task-form__label" htmlFor="task-title">
+          <label className="task-form__label" htmlFor={`${formId}-task-title`}>
             Назва <span aria-hidden="true">*</span>
           </label>
           <input
-            id="task-title"
+            id={`${formId}-task-title`}
             className="task-form__input"
             value={values.title}
             maxLength={120}
             required
             placeholder="Наприклад, опрацювати props"
             aria-invalid={!!error}
-            aria-describedby={error ? 'title-error' : undefined}
+            aria-describedby={error ? `${formId}-title-error` : undefined}
             onChange={(event) => {
               setValues({ ...values, title: event.target.value })
               if (error) setError('')
             }}
           />
           {error && (
-            <p id="title-error" className="task-form__error" role="alert">
+            <p id={`${formId}-title-error`} className="task-form__error" role="alert">
               {error}
             </p>
           )}
         </div>
         <div className="task-form__field">
-          <label className="task-form__label" htmlFor="task-description">
+          <label className="task-form__label" htmlFor={`${formId}-task-description`}>
             Опис
           </label>
           <textarea
-            id="task-description"
+            id={`${formId}-task-description`}
             className="task-form__input task-form__input--textarea"
             value={values.description}
             maxLength={500}
@@ -86,11 +109,11 @@ export default function TaskForm({ onAdd }: TaskFormProps) {
           />
         </div>
         <div className="task-form__field">
-          <label className="task-form__label" htmlFor="task-category">
+          <label className="task-form__label" htmlFor={`${formId}-task-category`}>
             Категорія
           </label>
           <input
-            id="task-category"
+            id={`${formId}-task-category`}
             className="task-form__input"
             value={values.category}
             maxLength={40}
@@ -101,11 +124,11 @@ export default function TaskForm({ onAdd }: TaskFormProps) {
           />
         </div>
         <div className="task-form__field">
-          <label className="task-form__label" htmlFor="task-priority">
+          <label className="task-form__label" htmlFor={`${formId}-task-priority`}>
             Пріоритет
           </label>
           <select
-            id="task-priority"
+            id={`${formId}-task-priority`}
             className="task-form__input"
             value={values.priority}
             onChange={(event) => changePriority(event.target.value)}
@@ -117,9 +140,16 @@ export default function TaskForm({ onAdd }: TaskFormProps) {
             ))}
           </select>
         </div>
-        <button className="button button--primary" type="submit">
-          Додати
-        </button>
+        <div className="task-form__actions">
+          <button className="button button--primary" type="submit">
+            {task ? 'Зберегти' : 'Додати'}
+          </button>
+          {task && (
+            <button className="button button--secondary" type="button" onClick={onCancel}>
+              Скасувати редагування
+            </button>
+          )}
+        </div>
       </form>
     </section>
   )
