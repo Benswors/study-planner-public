@@ -1,0 +1,28 @@
+.task-details-page {
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #e0e4e9;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+
+  h1 {
+    font-size: 22px;
+  }
+  dt {
+    font-weight: 600;
+  }
+  dd {
+    margin: 4px 0 16px;
+  }
+  &__actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  &__confirm {
+    margin-top: 20px;
+  }
+  &__confirm button + button {
+    margin-left: 8px;
+  }
+}

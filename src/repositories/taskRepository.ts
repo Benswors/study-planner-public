@@ -1,37 +1,40 @@
-import { request } from '../api/httpClient'
-import { DEFAULT_PRIORITY } from '../types/task'
-import type { Task, TaskInput } from '../types/task'
+import { getSession } from "../api/session";
+import { request } from "../api/httpClient";
+import { DEFAULT_PRIORITY } from "../types/task";
+import type { Task, TaskInput } from "../types/task";
 
 interface ApiTodo {
-  id: number
-  todo: string
-  completed: boolean
-  userId: number
+  id: number;
+  todo: string;
+  completed: boolean;
+  userId: number;
 }
 
 interface TodosResponse {
-  todos: ApiTodo[]
-  total: number
+  todos: ApiTodo[];
+  total: number;
 }
 
-type TaskChanges = Partial<TaskInput & Pick<Task, 'completed'>>
+type TaskChanges = Partial<TaskInput & Pick<Task, "completed">>;
 
 function toTask(todo: ApiTodo): Task {
   return {
     id: String(todo.id),
+    createdBy: null,
+    createdAt: null,
     title: todo.todo,
     completed: todo.completed,
-    description: '',
+    description: "",
     priority: DEFAULT_PRIORITY,
-    category: 'Загальне',
-  }
+    category: "Загальне",
+  };
 }
 
 function jsonBody(body: object) {
   return {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
-  }
+  };
 }
 
 export const taskRepository = {
@@ -39,49 +42,67 @@ export const taskRepository = {
     const query = new URLSearchParams({
       limit: String(limit),
       skip: String(page * limit),
-    })
-    const result = await request<TodosResponse>(`/todos?${query}`, { signal })
-    return { tasks: result.todos.map(toTask), total: result.total }
+    });
+    const result = await request<TodosResponse>(`/todos?${query}`, { signal });
+    return { tasks: result.todos.map(toTask), total: result.total };
   },
 
   async getById(id: string, signal: AbortSignal): Promise<Task | null> {
-    if (id.startsWith('local-')) return null
+    if (id.startsWith("local-")) return null;
 
-    const todo = await request<ApiTodo>(`/todos/${id}`, { signal })
-    return toTask(todo)
+    const todo = await request<ApiTodo>(`/todos/${id}`, { signal });
+    return toTask(todo);
   },
 
   async create(values: TaskInput): Promise<Task> {
-    const todo = await request<ApiTodo>('/todos/add', {
-      method: 'POST',
-      ...jsonBody({ todo: values.title, completed: false, userId: 1 }),
-    })
+    const session = getSession();
+    if (!session) throw new Error("Увійдіть, щоб створити завдання.");
 
-    // DummyJSON does not persist new records and can return the same ID.
+    const todo = await request<ApiTodo>(
+      "/todos/add",
+      {
+        method: "POST",
+        ...jsonBody({
+          todo: values.title,
+          completed: false,
+          userId: session.user.id,
+        }),
+      },
+      true,
+    );
+
     return {
       ...values,
+      createdBy: session.user.username,
+      createdAt: new Date().toISOString(),
       id: `local-${crypto.randomUUID()}`,
       title: todo.todo,
       completed: todo.completed,
-    }
+    };
   },
 
   async update(task: Task, changes: TaskChanges): Promise<Task> {
-    if (task.id.startsWith('local-')) return { ...task, ...changes }
+    if (!getSession()) throw new Error("Увійдіть, щоб змінити завдання.");
+    if (task.id.startsWith("local-")) return { ...task, ...changes };
 
-    const todo = await request<ApiTodo>(`/todos/${task.id}`, {
-      method: 'PATCH',
-      ...jsonBody({
-        todo: changes.title ?? task.title,
-        completed: changes.completed ?? task.completed,
-      }),
-    })
-    return { ...task, ...changes, title: todo.todo, completed: todo.completed }
+    const todo = await request<ApiTodo>(
+      `/todos/${task.id}`,
+      {
+        method: "PATCH",
+        ...jsonBody({
+          todo: changes.title ?? task.title,
+          completed: changes.completed ?? task.completed,
+        }),
+      },
+      true,
+    );
+    return { ...task, ...changes, title: todo.todo, completed: todo.completed };
   },
 
   async delete(task: Task): Promise<void> {
-    if (task.id.startsWith('local-')) return
+    if (!getSession()) throw new Error("Увійдіть, щоб змінити завдання.");
+    if (task.id.startsWith("local-")) return;
 
-    await request<ApiTodo>(`/todos/${task.id}`, { method: 'DELETE' })
+    await request<ApiTodo>(`/todos/${task.id}`, { method: "DELETE" }, true);
   },
-}
+};

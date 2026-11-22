@@ -1,0 +1,43 @@
+@use "../components/TaskBoard.scss";
+@use "../components/TaskList.scss";
+@use "../components/TaskItem.scss";
+
+.tasks-page {
+  &__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  &__heading h1 {
+    margin: 0;
+    font-size: 22px;
+  }
+  &__heading button {
+    font-size: 24px;
+    padding: 4px 16px;
+  }
+  &__note {
+    color: #525f6d;
+  }
+  &__priority {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    font-size: 12px;
+  }
+  &__priority select {
+    padding: 6px;
+    border: 1px solid #dce1e7;
+    border-radius: 4px;
+  }
+}
+.task-item__title a {
+  color: inherit;
+  text-decoration: none;
+}
+.task-item__title a:hover {
+  text-decoration: underline;
+}
+.task-item > a {
+  text-decoration: none;
+}

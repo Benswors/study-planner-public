@@ -1,23 +1,26 @@
-import './TaskFilters.scss'
-import { TASK_FILTERS } from '../types/task'
-import type { TaskCounts, TaskFilter } from '../types/task'
+import "./TaskFilters.scss";
+import { TASK_FILTERS } from "../types/task";
+import type { TaskCounts, TaskFilter } from "../types/task";
 interface TaskFiltersProps {
-  counts: TaskCounts
-  value: TaskFilter
-  onChange: (filter: TaskFilter) => void
+  counts: TaskCounts;
+  value: TaskFilter;
+  onChange: (filter: TaskFilter) => void;
 }
 
-export default function TaskFilters({ counts, value, onChange }: TaskFiltersProps) {
-
+export default function TaskFilters({
+  counts,
+  value,
+  onChange,
+}: TaskFiltersProps) {
   return (
     <div className="task-filters" role="group" aria-label="Фільтр завдань">
       {TASK_FILTERS.map((filter) => (
         <button
           key={filter.value}
           className={[
-            'task-filters__button',
-            value === filter.value ? 'task-filters__button--active' : '',
-          ].join(' ')}
+            "task-filters__button",
+            value === filter.value ? "task-filters__button--active" : "",
+          ].join(" ")}
           type="button"
           aria-pressed={value === filter.value}
           onClick={() => onChange(filter.value)}
@@ -27,5 +30,5 @@ export default function TaskFilters({ counts, value, onChange }: TaskFiltersProp
         </button>
       ))}
     </div>
-  )
+  );
 }

@@ -1,11 +1,33 @@
-const apiUrl = import.meta.env.VITE_API_URL || 'https://dummyjson.com'
+import { getSession } from "./session";
 
-export async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${apiUrl.replace(/\/+$/, '')}${path}`, options)
+const apiUrl = import.meta.env.VITE_API_URL || "https://dummyjson.com";
 
-  if (!response.ok) {
-    throw new Error(`Сервер повернув помилку HTTP ${response.status}.`)
+export async function request<T>(
+  path: string,
+  options: RequestInit = {},
+  authenticated = false,
+): Promise<T> {
+  const headers = new Headers(options.headers);
+
+  if (authenticated) {
+    const session = getSession();
+    if (!session) throw new Error("Увійдіть, щоб виконати цю дію.");
+    headers.set("Authorization", `Bearer ${session.accessToken}`);
   }
 
-  return response.json() as Promise<T>
+  const response = await fetch(`${apiUrl.replace(/\/+$/, "")}${path}`, {
+    ...options,
+    headers,
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error(
+        "Не вдалося підтвердити вхід. Перевірте дані або увійдіть повторно.",
+      );
+    }
+    throw new Error(`Сервер повернув помилку HTTP ${response.status}.`);
+  }
+
+  return response.json() as Promise<T>;
 }

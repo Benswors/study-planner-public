@@ -90,13 +90,21 @@
 }
 
 @media (max-width: 600px) {
-  .task-item { flex-wrap: wrap; }
-  .task-item__content { flex-basis: calc(100% - 29px); }
-  .task-item__actions { margin-left: 29px; }
+  .task-item {
+    flex-wrap: wrap;
+  }
+  .task-item__content {
+    flex-basis: calc(100% - 29px);
+  }
+  .task-item__actions {
+    margin-left: 29px;
+  }
 }
 
 .task-item__confirm {
   margin-top: 12px;
 
-  .button + .button { margin-left: 8px; }
+  .button + .button {
+    margin-left: 8px;
+  }
 }

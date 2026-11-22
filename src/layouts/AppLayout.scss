@@ -1,0 +1,36 @@
+@use "../components/Header.scss";
+
+.header__title {
+  text-decoration: none;
+}
+.header__nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+
+  a {
+    color: #525f6d;
+    text-decoration: none;
+  }
+  a.active {
+    color: #218bb6;
+  }
+}
+
+.page {
+  max-width: 1080px;
+  padding: 0 24px;
+  margin: 32px auto;
+}
+
+@media (max-width: 600px) {
+  .header__content {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .page {
+    padding: 0 16px;
+    margin: 20px auto;
+  }
+}

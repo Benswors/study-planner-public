@@ -18,6 +18,10 @@
   padding: 12px;
   pointer-events: auto;
 
-  &--success { border-left-color: #349769; }
-  &--error { border-left-color: #bb4141; }
+  &--success {
+    border-left-color: #349769;
+  }
+  &--error {
+    border-left-color: #bb4141;
+  }
 }
